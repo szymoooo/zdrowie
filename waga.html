@@ -1,0 +1,1791 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Twoje zdrowie</title>
+<style>
+  /* Reset i podstawowe style */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: #f5f7fa;
+    color: #333;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    font-size: 16px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+
+  h1, h2, h3, h4 {
+    color: #222;
+    margin-bottom: 20px;
+    text-align: center;
+    width: 100%;
+  }
+
+  /* Style dla kontenerów */
+  #content {
+    max-width: 1200px;
+    width: 100%;
+    margin: 20px auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  #yellowA, #yellowB, #mealContainer {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    color: #222;
+    position: relative;
+  }
+
+  #mealContainer, #yellowA {
+    padding-bottom: 100px;
+  }
+
+  #rightContainer {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    color: #222;
+    grid-column: 1 / -1;
+    margin-top: 20px;
+  }
+
+  /* Style dla modali */
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+  }
+
+  .modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    max-width: 500px;
+    width: 100%;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #777;
+  }
+
+  /* Style dla formularzy */
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #444;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: all 0.3s;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+  }
+
+  button {
+    background: #4a90e2;
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 16px;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  button:hover {
+    background: #357abd;
+    transform: translateY(-2px);
+  }
+
+  /* Style dla danych użytkownika */
+  .user-data-item {
+    margin-bottom: 15px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .user-data-item:last-child {
+    border-bottom: none;
+    margin-bottom: 25px;
+    padding-bottom: 0;
+  }
+
+  .user-data-label {
+    font-weight: 600;
+    color: #666;
+    display: inline-block;
+    width: 140px;
+  }
+
+  .user-data-value {
+    font-size: 16px;
+    color: #222;
+  }
+
+  /* Style dla podsumowania */
+  .summary-item {
+    margin-bottom: 15px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .summary-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .summary-label {
+    font-weight: 600;
+    color: #666;
+    display: inline-block;
+    width: 140px;
+  }
+
+  .summary-value {
+    font-size: 16px;
+    color: #222;
+  }
+
+  /* Kolory dla BMI */
+  .bmi-normal { color: #27ae60; }
+  .bmi-underweight { color: #f39c12; }
+  .bmi-overweight { color: #e67e22; }
+  .bmi-obesity1 { color: #d35400; }
+  .bmi-obesity2 { color: #c0392b; }
+  .bmi-obesity3 { color: #7f8c8d; }
+
+  /* Style dla listy posiłków */
+  .meal-list {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 15px;
+    margin-bottom: 15px;
+  }
+
+  .meal-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 15px;
+  }
+
+  .meal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f5f5f5;
+  }
+
+  .meal-name {
+    font-weight: 600;
+    font-size: 16px;
+  }
+
+  .meal-calories-value {
+    color: #27ae60;
+    font-weight: bold;
+    margin-left: 15px;
+    margin-right: 15px;
+  }
+
+  .ingredient-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 8px 0;
+  }
+
+  .ingredient-item:last-child {
+    margin-bottom: 20px;
+  }
+
+  .ingredient-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-right: 15px;
+  }
+
+  .ingredient-calories {
+    flex-shrink: 0;
+    width: 80px;
+    text-align: right;
+    margin-right: 10px;
+  }
+
+  /* Nawigacja pomiarów i posiłków */
+  .measurement-dots, .meal-dots {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    flex-wrap: wrap;
+    position: absolute;
+    bottom: 80px;
+    left: 0;
+    right: 0;
+  }
+
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ddd;
+    margin: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .dot:hover {
+    transform: scale(1.2);
+  }
+
+  .dot.active {
+    background: #4a90e2;
+    transform: scale(1.2);
+  }
+
+  /* Przyciski na dole kontenera */
+  .container-footer {
+    position: absolute;
+    bottom: 20px;
+    left: 25px;
+    right: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* Style dla autouzupełniania */
+  .autocomplete {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+  }
+
+  .autocomplete-items {
+    position: absolute;
+    border: 1px solid #d4d4d4;
+    border-bottom: none;
+    border-top: none;
+    z-index: 99;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+  }
+
+  .autocomplete-items div {
+    padding: 10px;
+    cursor: pointer;
+    background-color: #fff;
+    border-bottom: 1px solid #d4d4d4;
+  }
+
+  .autocomplete-items div:hover {
+    background-color: #e9e9e9;
+  }
+
+  /* Style dla formularza składników */
+  .ingredient-inputs {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .ingredient-inputs input[type="text"],
+  .ingredient-inputs input[type="number"] {
+    flex: 2;
+    min-width: 120px;
+  }
+
+  .ingredient-inputs select {
+    flex: 1;
+    min-width: 80px;
+  }
+
+  .ingredient-inputs button {
+    flex: 0 0 auto;
+    width: auto;
+    padding: 12px;
+  }
+
+  /* Style dla błędów walidacji */
+  .error-message {
+    color: #e74c3c;
+    font-size: 0.9em;
+    margin-top: 5px;
+    display: none;
+  }
+
+  .has-error {
+    border-color: #e74c3c !important;
+  }
+
+  /* Style dla listy składników */
+  .ingredient-list {
+    margin-bottom: 15px;
+  }
+
+  .remove-ingredient-btn {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+    width: 30px;
+    text-align: center;
+    margin-left: 5px;
+    transition: all 0.2s;
+  }
+
+  .remove-ingredient-btn:hover {
+    background: #c0392b;
+  }
+
+  /* Style dla tabeli */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+
+  th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+
+  th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+  }
+
+  .hydration-info {
+    font-size: 0.9em;
+    line-height: 1.4;
+  }
+
+  /* Dymek informacyjny z zaleceniami */
+.activity-tooltip {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.activity-content {
+  display: block;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 5px;
+  min-width: 250px;
+  max-width: 300px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  border: 1px solid rgba(0,0,0,0.1);
+  text-align: center;
+  margin: 0 auto;
+  /* 80% przejrzystości (20% krycia) */
+  opacity: 1;
+  /* Płynne przejście przy najechaniu */
+  transition: opacity 0.3s ease;
+}
+
+/* Efekt przy najechaniu - zwiększenie widoczności */
+.activity-content:hover {
+  opacity: 1;
+}
+
+.activity-item {
+  padding: 6px 0;
+  text-align: center;
+  list-style-type: none;
+  font-size: 0.9em;
+}
+
+/* Kolory tła dopasowane do BMI z przejrzystością */
+.activity-content.bmi-underweight { 
+  background-color: rgba(243, 156, 18, 0.8); /* pomarańczowy */
+  color: white;
+}
+.activity-content.bmi-normal { 
+  background-color: rgba(39, 174, 96, 0.8); /* zielony */
+  color: white;
+}
+.activity-content.bmi-overweight { 
+  background-color: rgba(230, 126, 34, 0.8); /* ciemny pomarańcz */
+  color: white;
+}
+.activity-content.bmi-obesity1 { 
+  background-color: rgba(211, 84, 0, 0.8); /* czerwonopomarańczowy */
+  color: white;
+}
+.activity-content.bmi-obesity2 { 
+  background-color: rgba(192, 57, 43, 0.8); /* czerwony */
+  color: white;
+}
+.activity-content.bmi-obesity3 { 
+  background-color: rgba(127, 140, 141, 0.8); /* szary */
+  color: white;
+}
+  /* Responsywność */
+  @media(max-width: 900px) {
+    body {
+      font-size: 14px;
+      padding: 15px;
+    }
+
+    #content {
+      grid-template-columns: 1fr;
+    }
+    
+    #yellowA, #yellowB, #mealContainer, #rightContainer {
+      padding: 20px;
+      padding-bottom: 90px;
+    }
+    
+    .modal-content {
+      padding: 20px;
+    }
+
+    input, select, textarea {
+      padding: 10px;
+      font-size: 14px;
+    }
+
+    button {
+      padding: 10px 15px;
+      font-size: 14px;
+    }
+
+    #rightContainer {
+      overflow-x: auto;
+    }
+
+    table {
+      font-size: 13px;
+    }
+
+    .container-footer {
+      bottom: 15px;
+      left: 20px;
+      right: 20px;
+    }
+
+    .measurement-dots, .meal-dots {
+      bottom: 70px;
+    }
+
+    /* USUWAMY POGRUBIENIA */
+    .user-data-label,
+    .summary-label,
+    .meal-name,
+    label {
+      font-weight: normal;
+    }
+
+    /* MNIEJSZE CZCIONKI */
+    .user-data-label,
+    .summary-label {
+      width: 120px;
+      font-size: 13px;
+    }
+
+    .user-data-value,
+    .summary-value {
+      font-size: 14px;
+    }
+
+    .meal-name,
+    .ingredient-name {
+      font-size: 14px;
+    }
+
+    .meal-calories-value,
+    .ingredient-calories {
+      font-size: 13px;
+    }
+  }
+</style>
+
+<body>
+
+<!-- Modal początkowy -->
+<div id="initialModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="document.getElementById('initialModal').style.display='none'">&times;</span>
+    <h2>Wprowadź swoje dane</h2>
+    <form id="initialForm">
+      <div class="form-group">
+        <label for="name">Imię:</label>
+        <input type="text" id="name" name="name" required />
+      </div>
+      
+      <div class="form-group">
+        <label for="age">Wiek (lata):</label>
+        <input type="number" id="age" name="age" min="1" max="120" required />
+      </div>
+      
+      <div class="form-group">
+        <label for="height">Wzrost (cm):</label>
+        <input type="number" id="height" name="height" min="50" max="250" required />
+      </div>
+      
+      <div class="form-group">
+        <label for="targetWeight">Waga docelowa (kg):</label>
+        <input type="number" id="targetWeight" name="targetWeight" min="20" max="300" required />
+      </div>
+      
+      <button type="submit">Zapisz dane podstawowe</button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal pomiarów -->
+<div id="measurementModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="document.getElementById('measurementModal').style.display='none'">&times;</span>
+    <h2>Dodaj nowy pomiar</h2>
+    <form id="measurementForm">
+      <div class="form-group">
+        <label for="measurementDate">Data pomiaru:</label>
+        <input type="date" id="measurementDate" name="measurementDate" required />
+      </div>
+      
+      <div class="form-group">
+        <label for="currentWeight">Waga aktualna (kg):</label>
+        <input type="number" id="currentWeight" name="currentWeight" min="20" max="300" step="0.1" required />
+      </div>
+      
+      <div class="form-group">
+        <label for="waist">Obwód pasa (cm):</label>
+        <input type="number" id="waist" name="waist" min="30" max="200" step="1" />
+      </div>
+      
+      <div class="form-group">
+        <label for="wrist">Obwód nadgarstka (cm):</label>
+        <input type="number" id="wrist" name="wrist" min="10" max="40" step="1" />
+      </div>
+      
+      <div class="form-group">
+        <label for="thigh">Obwód uda (cm):</label>
+        <input type="number" id="thigh" name="thigh" min="20" max="100" step="1" />
+      </div>
+      
+      <button type="submit">Zapisz pomiar</button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal posiłków -->
+<div id="mealModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="document.getElementById('mealModal').style.display='none'">&times;</span>
+    <h2>Dodaj nowy posiłek</h2>
+    <form id="mealForm">
+      <div class="form-group">
+        <label for="mealName">Nazwa posiłku:</label>
+        <input type="text" id="mealName" name="mealName" />
+        <div class="error-message" id="mealNameError"></div>
+      </div>
+      
+      <div class="form-group">
+        <label for="mealType">Typ posiłku:</label>
+        <select id="mealType" name="mealType">
+          <option value="">-- Wybierz --</option>
+          <option value="breakfast">Śniadanie</option>
+          <option value="second_breakfast">II Śniadanie</option>
+          <option value="lunch">Obiad</option>
+          <option value="snack">Podwieczorek</option>
+          <option value="dinner">Kolacja</option>
+        </select>
+        <div class="error-message" id="mealTypeError"></div>
+      </div>
+      
+      <div class="form-group">
+        <label>Składniki:</label>
+        <div class="ingredient-list" id="ingredientList">
+          <!-- Tu będą dodawane składniki -->
+        </div>
+        <div class="error-message" id="ingredientsError"></div>
+        
+        <div class="ingredient-inputs">
+          <div class="autocomplete" style="flex: 3;">
+            <input type="text" id="newIngredientName" placeholder="Nazwa składnika" class="ingredient-name">
+            <div id="autocompleteList" class="autocomplete-items"></div>
+          </div>
+          <input type="number" id="newIngredientAmount" placeholder="Ilość" min="0" step="0.1" class="ingredient-amount" style="flex: 1;">
+          <select id="newIngredientUnit" class="ingredient-unit" style="flex: 1;">
+            <option value="szt">szt.</option>
+            <option value="g">g</option>
+            <option value="kg">kg</option>
+            <option value="ml">ml</option>
+          </select>
+          <button type="button" class="add-ingredient-btn" id="addIngredientBtn" style="flex: 0 0 auto; width: auto;">+</button>
+        </div>
+      </div>
+      
+      <div class="meal-calories" id="mealCaloriesDisplay">
+        Suma kalorii: 0 kcal
+      </div>
+      
+      <button type="submit">Dodaj posiłek</button>
+    </form>
+  </div>
+</div>
+
+<h1>Twoje zdrowe życie</h1>
+
+<div id="content">
+  <div id="yellowA">
+    <h3>Dane użytkownika</h3>
+    <div id="userData"></div>
+    <div class="measurement-dots" id="measurementDots"></div>
+    <div class="container-footer">
+      <button id="addMeasurementBtn">Dodaj nowy pomiar</button>
+    </div>
+  </div>
+  <div id="yellowB">
+    <h3>Podsumowanie</h3>
+    <div id="summaryData"></div>
+
+  </div>
+  <div id="mealContainer">
+
+    <h3>Jadłospis</h3>
+    <div class="meal-list" id="mealList"></div>
+    <div class="meal-dots" id="mealDots"></div>
+    <div class="container-footer">
+      <button id="addMealBtn">Dodaj posiłek</button>
+    </div>
+  </div>
+  <div id="rightContainer">
+    <h3>Plan tygodniowy (najbliższe 4 tygodnie)</h3>
+    <table style="width:100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background-color: #f8f9fa;">
+          <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Tydzień</th>
+          <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Waga (kg)</th>
+          <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">BMI</th>
+          <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Zalecane aktywności</th>
+          <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Nawodnienie</th>
+        </tr>
+      </thead>
+      <tbody id="weeklyPlanBody">
+        <!-- Tu będą generowane wiersze z planem tygodniowym -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  // Rozbudowana baza produktów z emoji
+  const ingredientDatabase = {
+    // Mięso i drób 🥩
+    'wołowina (chuda)': { kcalPerUnit: 250, defaultUnit: '100g', emoji: '🥩' },
+    'wołowina (tłusta)': { kcalPerUnit: 290, defaultUnit: '100g', emoji: '🥩' },
+    'stek z antrykotu': { kcalPerUnit: 271, defaultUnit: '100g', emoji: '🥩' },
+    'mielona wołowina 80/20': { kcalPerUnit: 290, defaultUnit: '100g', emoji: '🥩' },
+    'mielona wołowina 90/10': { kcalPerUnit: 217, defaultUnit: '100g', emoji: '🥩' },
+    'szynka wieprzowa': { kcalPerUnit: 196, defaultUnit: '100g', emoji: '🍖' },
+    'boczek': { kcalPerUnit: 541, defaultUnit: 'g', emoji: '🥓' },
+    'schab wieprzowy': { kcalPerUnit: 242, defaultUnit: '100g', emoji: '🍖' },
+    'kurczak (pierś)': { kcalPerUnit: 165, defaultUnit: '100g', emoji: '🍗' },
+    'kurczak (udo)': { kcalPerUnit: 209, defaultUnit: '100g', emoji: '🍗' },
+    'indyk (pierś)': { kcalPerUnit: 135, defaultUnit: '100g', emoji: '🦃' },
+    'indyk (udo)': { kcalPerUnit: 175, defaultUnit: '100g', emoji: '🦃' },
+    'kaczka': { kcalPerUnit: 337, defaultUnit: '100g', emoji: '🦆' },
+    'gęś': { kcalPerUnit: 371, defaultUnit: '100g', emoji: '🦢' },
+    'wątróbka wieprzowa': { kcalPerUnit: 134, defaultUnit: '100g', emoji: '🧆' },
+    'wątróbka wołowa': { kcalPerUnit: 135, defaultUnit: '100g', emoji: '🧆' },
+    'wątróbka drobiowa': { kcalPerUnit: 116, defaultUnit: '100g', emoji: '🧆' },
+    'kiełbasa': { kcalPerUnit: 300, defaultUnit: '100g', emoji: '🌭' },
+    
+    // Ryby i owoce morza 🐟
+    'łosoś': { kcalPerUnit: 208, defaultUnit: '100g', emoji: '🐟' },
+    'makrela': { kcalPerUnit: 262, defaultUnit: '100g', emoji: '🐟' },
+    'sardynki': { kcalPerUnit: 208, defaultUnit: '100g', emoji: '🐟' },
+    'tuńczyk (świeży)': { kcalPerUnit: 144, defaultUnit: '100g', emoji: '🐟' },
+    'tuńczyk (w oleju)': { kcalPerUnit: 198, defaultUnit: '100g', emoji: '🐟' },
+    'dorsz': { kcalPerUnit: 82, defaultUnit: '100g', emoji: '🐟' },
+    'halibut': { kcalPerUnit: 105, defaultUnit: '100g', emoji: '🐟' },
+    'pstrąg': { kcalPerUnit: 148, defaultUnit: '100g', emoji: '🐟' },
+    'śledź': { kcalPerUnit: 210, defaultUnit: '100g', emoji: '🐟' },
+    'ośmiornica': { kcalPerUnit: 82, defaultUnit: '100g', emoji: '🐙' },
+    'krewetki': { kcalPerUnit: 99, defaultUnit: '100g', emoji: '🦐' },
+    'małże': { kcalPerUnit: 86, defaultUnit: '100g', emoji: '🦪' },
+    'homar': { kcalPerUnit: 89, defaultUnit: '100g', emoji: '🦞' },
+    'krab': { kcalPerUnit: 97, defaultUnit: '100g', emoji: '🦀' },
+    
+    // Warzywa 🥦
+    'brokuły': { kcalPerUnit: 35, defaultUnit: '100g', emoji: '🥦' },
+    'kalafior': { kcalPerUnit: 25, defaultUnit: '100g', emoji: '🥦' },
+    'cukinia': { kcalPerUnit: 17, defaultUnit: '100g', emoji: '🥒' },
+    'ogórek': { kcalPerUnit: 15, defaultUnit: '100g', emoji: '🥒' },
+    'szpinak': { kcalPerUnit: 23, defaultUnit: '100g', emoji: '🍃' },
+    'kapusta': { kcalPerUnit: 25, defaultUnit: '100g', emoji: '🥬' },
+    'jarmuż': { kcalPerUnit: 49, defaultUnit: '100g', emoji: '🥬' },
+    'rukola': { kcalPerUnit: 25, defaultUnit: '100g', emoji: '🥬' },
+    'sałata': { kcalPerUnit: 15, defaultUnit: '100g', emoji: '🥬' },
+    'papryka zielona': { kcalPerUnit: 20, defaultUnit: '100g', emoji: '🫑' },
+    'papryka czerwona': { kcalPerUnit: 31, defaultUnit: '100g', emoji: '🫑' },
+    'pieczarki': { kcalPerUnit: 22, defaultUnit: '100g', emoji: '🍄' },
+    'rzodkiewka': { kcalPerUnit: 16, defaultUnit: '100g', emoji: '🌶️' },
+    'bakłażan': { kcalPerUnit: 25, defaultUnit: '100g', emoji: '🍆' },
+    'seler naciowy': { kcalPerUnit: 16, defaultUnit: '100g', emoji: '🥬' },
+    'fasolka szparagowa': { kcalPerUnit: 31, defaultUnit: '100g', emoji: '🫛' },
+    'por': { kcalPerUnit: 31, defaultUnit: '100g', emoji: '🧅' },
+    'cebula': { kcalPerUnit: 40, defaultUnit: '100g', emoji: '🧅' },
+    'czosnek': { kcalPerUnit: 143, defaultUnit: '100g', emoji: '🧄' },
+    'kalarepa': { kcalPerUnit: 27, defaultUnit: '100g', emoji: '🥬' },
+    
+    // Jaja i nabiał 🥚🧀
+    'jajko kurze': { kcalPerUnit: 143, defaultUnit: 'szt', emoji: '🥚' },
+    'jajka': { kcalPerUnit: 143, defaultUnit: 'szt', emoji: '🥚' },
+    'jaja przepiórcze': { kcalPerUnit: 158, defaultUnit: 'szt', emoji: '🥚' },
+    'ser żółty': { kcalPerUnit: 356, defaultUnit: '100g', emoji: '🧀' },
+    'ser cheddar': { kcalPerUnit: 403, defaultUnit: '100g', emoji: '🧀' },
+    'ser pleśniowy': { kcalPerUnit: 350, defaultUnit: '100g', emoji: '🧀' },
+    'ser mozzarella': { kcalPerUnit: 280, defaultUnit: '100g', emoji: '🧀' },
+    'twaróg tłusty': { kcalPerUnit: 170, defaultUnit: '100g', emoji: '🧀' },
+    'twaróg półtłusty': { kcalPerUnit: 133, defaultUnit: '100g', emoji: '🧀' },
+    'twaróg chudy': { kcalPerUnit: 99, defaultUnit: '100g', emoji: '🧀' },
+    'jogurt grecki': { kcalPerUnit: 120, defaultUnit: '100g', emoji: '🥛' },
+    'masło': { kcalPerUnit: 717, defaultUnit: '100g', emoji: '🧈' },
+    'masło klarowane': { kcalPerUnit: 900, defaultUnit: '100g', emoji: '🧈' },
+    'śmietana 30%': { kcalPerUnit: 292, defaultUnit: '100g', emoji: '🥛' },
+    'śmietana 36%': { kcalPerUnit: 340, defaultUnit: '100g', emoji: '🥛' },
+    'ser mascarpone': { kcalPerUnit: 435, defaultUnit: '100g', emoji: '🧀' },
+    'feta': { kcalPerUnit: 264, defaultUnit: '100g', emoji: '🧀' },
+    
+    // Tłuszcze, oleje, orzechy 🥑🌰
+    'oliwa z oliwek': { kcalPerUnit: 884, defaultUnit: '100ml', emoji: '🫒' },
+    'olej kokosowy': { kcalPerUnit: 862, defaultUnit: '100ml', emoji: '🥥' },
+    'smalec': { kcalPerUnit: 898, defaultUnit: '100g', emoji: '🥓' },
+    'masło orzechowe': { kcalPerUnit: 588, defaultUnit: '100g', emoji: '🥜' },
+    'awokado': { kcalPerUnit: 160, defaultUnit: '100g', emoji: '🥑' },
+    'migdały': { kcalPerUnit: 579, defaultUnit: '100g', emoji: '🌰' },
+    'orzechy włoskie': { kcalPerUnit: 654, defaultUnit: '100g', emoji: '🌰' },
+    'orzechy laskowe': { kcalPerUnit: 628, defaultUnit: '100g', emoji: '🌰' },
+    'nerkowce': { kcalPerUnit: 553, defaultUnit: '100g', emoji: '🌰' },
+    'pistacje': { kcalPerUnit: 562, defaultUnit: '100g', emoji: '🌰' },
+    'pestki dyni': { kcalPerUnit: 559, defaultUnit: '100g', emoji: '🎃' },
+    'pestki słonecznika': { kcalPerUnit: 584, defaultUnit: '100g', emoji: '🌻' },
+    
+    // Inne
+    'mąka kokosowa': { kcalPerUnit: 443, defaultUnit: '100g', emoji: '🥥' },
+    'kakao': { kcalPerUnit: 228, defaultUnit: '100g', emoji: '🍫' },
+    'czekolada gorzka': { kcalPerUnit: 600, defaultUnit: '100g', emoji: '🍫' },
+    'kiszona kapusta': { kcalPerUnit: 19, defaultUnit: '100g', emoji: '🥬' },
+    'ogórki kiszone': { kcalPerUnit: 11, defaultUnit: '100g', emoji: '🥒' },
+    'kimchi': { kcalPerUnit: 30, defaultUnit: '100g', emoji: '🥬' },
+    'tofu': { kcalPerUnit: 144, defaultUnit: '100g', emoji: '🥢' }
+  };
+
+  // Dane aplikacji
+  let userData = {
+    basicInfo: {},
+    measurements: [],
+    meals: [],
+    currentMeasurementIndex: 0,
+    currentMealIndex: 0,
+    currentMealPage: 0
+  };
+
+  // Klasyfikacja BMI z zaleceniami aktywności
+  const bmiClassifications = {
+    underweight: {
+      range: "poniżej 18.5",
+      name: "Niedowaga",
+      class: "bmi-underweight",
+      activities: [
+        "Zalecenia:",
+        "- Spacer 3-4x w tygodniu (20-30 min)",
+        "- Marsz 2-3x w tygodniu",
+        "- Lekki trening siłowy z małymi obciążeniami",
+        "- Joga/Pilates dla początkujących"
+      ]
+    },
+    normal: {
+      range: "18.5 - 24.9", 
+      name: "Waga prawidłowa",
+      class: "bmi-normal",
+      activities: [
+        "Zalecenia:",
+        "- Marszobiegi 3-4x w tygodniu",
+        "- Jazda na rowerze 2-3x w tygodniu",
+        "- Trening siłowy 3x w tygodniu",
+        "- Pływanie/Aerobik wodny"
+      ]
+    },
+    overweight: {
+      range: "25 - 29.9",
+      name: "Nadwaga",
+      class: "bmi-overweight",
+      activities: [
+        "Zalecenia:",
+        "- Spacer 5-6x w tygodniu (30-45 min)",
+        "- Marsz 3-4x w tygodniu",
+        "- Rower stacjonarny/niskie obciążenie",
+        "- Aqua aerobik"
+      ]
+    },
+    obesity1: {
+      range: "30 - 34.9",
+      name: "Otyłość I stopnia",
+      class: "bmi-obesity1",
+      activities: [
+        "Zalecenia:",
+        "- Spacer 5x w tygodniu (20-30 min)",
+        "- Ćwiczenia w wodzie",
+        "- Ćwiczenia na siedząco",
+        "- Stopniowe zwiększanie aktywności"
+      ]
+    },
+    obesity2: {
+      range: "35 - 39.9",
+      name: "Otyłość II stopnia",
+      class: "bmi-obesity2",
+      activities: [
+        "Zalecenia:",
+        "- Krótkie spacery 3-4x dziennie (10-15 min)",
+        "- Ćwiczenia oddechowe",
+        "- Rozciąganie",
+        "- Konsultacja z lekarzem przed treningami"
+      ]
+    },
+    obesity3: {
+      range: "powyżej 40",
+      name: "Otyłość III stopnia",
+      class: "bmi-obesity3",
+      activities: [
+        "Zalecenia:",
+        "- Bardzo krótkie spacery (5-10 min)",
+        "- Ćwiczenia pod okiem specjalisty",
+        "- Konieczna konsultacja lekarska",
+        "- Stopniowa rehabilitacja ruchowa"
+      ]
+    }
+  };
+
+  // Szczegółowe zalecenia aktywności dla różnych zakresów BMI
+  const detailedActivityRecommendations = {
+    16.0: "🚶 *Spacery lekkie 30 min* 3x/tydz. <br> 🚲 *Rower na płaskim 20–30 min* 2x/tydz. <br> 🧘 *Stretching oddechowy* codziennie <br> 🧍 *Ćwiczenia postawy (5–10 min)* codziennie",
+    16.5: "🚶 *Marsz spokojny 35 min* 3x/tydz. <br> 🚴 *Rower stacjonarny lekki 30 min* 2x/tydz. <br> 🧘 *Joga statyczna* 3x/tydz. <br> 🤸 *Ćwiczenia równowagi* 2x/tydz.",
+    17.0: "🚶 *Marsz umiarkowany 40 min* 3x/tydz. <br> 🚲 *Rower rekreacyjny 30–40 min* 2x/tydz. <br> 🧘 *Stretching z oddechem* codziennie <br> 🏋️ *Gumy oporowe – lekki trening* 2x/tydz.",
+    17.5: "🚶 *Szybki marsz 45 min* 3x/tydz. <br> 🚴 *Rower miejski 40 min* 2x/tydz. <br> 🧘 *Mobility + joga* 3x/tydz. <br> 🏋️ *Ćwiczenia z ciężarem własnym* 2x/tydz.",
+    18.0: "🚶 *Marsz tempowy 50 min* 3x/tydz. <br> 🚲 *Rower terenowy 40 min* 2x/tydz. <br> 🧘 *Joga dynamiczna* 2x/tydz. <br> 🏋️ *Trening funkcjonalny* 2x/tydz.",
+    18.5: "🚶 *Marsz z kijkami 50 min* 3–4x/tydz. <br> 🚲 *Rower interwałowy lekki 45 min* 2x/tydz. <br> 🏃 *Trucht 20 min* 2x/tydz. <br> 🧘 *Stretching po wysiłku* codziennie",
+    19.0: "🚶 *Szybki marsz 60 min* 3x/tydz. <br> 🚴 *Rower szosowy 45 min* 2x/tydz. <br> 🏋️ *Siłownia – obwody 30 min* 2x/tydz. <br> 🧘 *Relaksacja i mobilność* codziennie",
+    19.5: "🏃 *Trucht ciągły 30 min* 3x/tydz. <br> 🚴 *Rower z 3 interwałami* 45 min 2x/tydz. <br> 🏋️ *Trening obwodowy z masą ciała* 2x/tydz. <br> 🧘 *Stretching dolnych partii* codziennie",
+    20.0: "🏃 *Trucht + sprint 4x20s* 3x/tydz. <br> 🚴 *Rower interwałowy 50 min* 2x/tydz. <br> 🏋️ *Split góra/dół na siłowni* 3x/tydz. <br> 🧘 *Stretching aktywny* codziennie",
+    20.5: "🏃 *Bieg progresywny 35 min* 3x/tydz. <br> 🚴 *Rower + 5x1min mocno* 2x/tydz. <br> 🏋️ *Full body + core* 3x/tydz. <br> 🧘 *Rolowanie wieczorne* codziennie",
+    21.0: "🏃 *Bieg 5 km tempem umiarkowanym* 2x/tydz. <br> 🚴 *Rower + interwały 4x2min* 2x/tydz. <br> 🏋️ *Siłownia push/pull/legs* 3x/tydz. <br> 🧘 *Stretching dynamiczny* codziennie",
+    21.5: "🏃 *Bieg interwałowy 6x400m* 2x/tydz. <br> 🚴 *Rower terenowy 60 min* 2x/tydz. <br> 🏋️ *Trening siłowy + mobilność* 3x/tydz. <br> 🧘 *Joga aktywna 20 min* codziennie",
+    22.0: "🚶 *Szybki marsz 40 min* 3x/tydz. <br> 🚲 *Rower miejski 45 min* 2x/tydz. <br> 🧘 *Joga siłowa (Vinyasa)* 2x/tydz. <br> 🏋️ *Ćwiczenia własną masą ciała* 2x/tydz.",
+    22.5: "🚶 *Marsz z kijkami 45 min* 3–4x/tydz. <br> 🚴 *Rower w terenie mieszanym 45 min* 2x/tydz. <br> 🏋️ *Obwodowy trening domowy* 2x/tydz. <br> 🧘 *Rozciąganie funkcjonalne* codziennie",
+    23.0: "🏃 *Marszobieg 3x5 min + marsz* 2x/tydz. <br> 🚲 *Rower 60 min – tempo umiarkowane* 2x/tydz. <br> 🏋️ *Trening siłowy na maszynach* 2x/tydz. <br> 🧘 *Mobilność + foam rolling* 3x/tydz.",
+    23.5: "🏃 *Trucht 20–30 min* 3x/tydz. <br> 🚴 *Rower interwałowy 40 min* 2x/tydz. <br> 🏋️ *Cross-trening lekki* 2x/tydz. <br> � *Stretching statyczny* 10 min po treningu",
+    24.0: "🏃 *Trucht/Bieg 30 min* 3x/tydz. <br> 🚴 *Rower + podjazdy 45 min* 2x/tydz. <br> 🏋️ *Siłownia: FBW lub Split* 3x/tydz. <br> 🧘 *Joga siłowa lub Pilates* 2x/tydz.",
+    24.5: "🏃 *Bieg 35–40 min w tempie konwersacyjnym* 3x/tydz. <br> 🚴 *Rower interwały 50 min* 2x/tydz. <br> 🏋️ *Trening funkcjonalny* 3x/tydz. <br> 🧘 *Stretching aktywny* 3x/tydz.",
+    25.0: "🚶 *Marsz szybki 60 min* 4x/tydz. <br> 🚲 *Rower 60 min z 5 interwałami* 2x/tydz. <br> 🏋️ *Trening siłowy FBW* 3x/tydz. <br> 🧘 *Stretching wieczorny* codziennie",
+    25.5: "🚶 *Nordic walking 50–60 min* 4x/tydz. <br> 🚴 *Rower interwałowy 45 min* 3x/tydz. <br> 🏋️ *TRX lub gumy oporowe* 2x/tydz. <br> 🧘 *Rozciąganie i oddech* codziennie",
+    26.0: "🏃 *Marszobieg 40 min (1:1 min)* 3x/tydz. <br> 🚲 *Rower 60 min ze zmianą tempa* 3x/tydz. <br> 🏋️ *Trening siłowy Split* 3x/tydz. <br> 🧘 *Foam rolling* po każdym treningu",
+    26.5: "🚶 *Marsz 60 min dziennie* 5x/tydz. <br> 🚴 *Rower + 10-min interwał* 2x/tydz. <br> 🏋️ *Ćwiczenia funkcjonalne* 3x/tydz. <br> 🧘 *Mobility + relaksacja* codziennie",
+    27.0: "🚶 *Marsz + podbiegi 45 min* 4x/tydz. <br> 🚲 *Rower 60 min stałe tempo* 3x/tydz. <br> 🏋️ *Siłownia + interwał cardio* 2x/tydz. <br> 🧘 *Stretching* codziennie",
+    27.5: "🚶 *Marsz z obciążeniem (plecak 5 kg)* 4x/tydz. <br> 🚴 *Rower ze zmianą tempa 60 min* 2x/tydz. <br> 🏋️ *Full body training* 2x/tydz. <br> 🧘 *Stretch + oddech* codziennie",
+    28.0: "🚶 *Nordic walking 60 min* 4–5x/tydz. <br> 🚴 *Rower interwałowy 60 min* 2x/tydz. <br> 🏋️ *Trening funkcjonalny* 2–3x/tydz. <br> 🧘 *Rozciąganie aktywne* 3x/tydz.",
+    28.5: "🚶 *Marsz szybki 60 min* 5x/tydz. <br> 🚲 *Rower 45 min (70% HRmax)* 3x/tydz. <br> 🏋️ *Siłownia: ćwiczenia wielostawowe* 3x/tydz. <br> 🧘 *Joga + mobilność* 3x/tydz.",
+    29.0: "🚶 *2x dziennie po 30 min* <br> 🚴 *Rower stacjonarny 45 min* 2x/tydz. <br> 🏋️ *Trening domowy z ciężarkami* 2x/tydz. <br> 🧘 *Foam rolling + stretching* codziennie",
+    29.5: "🚶 *60–75 min marszu dziennie* 5x/tydz. <br> 🚴 *Rower 60 min (65% HRmax)* 3x/tydz. <br> 🏋️ *Trening oporowy + cardio* 3x/tydz. <br> 🧘 *Stretching + oddech* codziennie",
+    30.0: "🚶 *2x dziennie po 30 min* <br> 🧘 *Codzienne rozciąganie* 10–15 min <br> 🏋️ *Trening w domu (mata, krzesło)* 3x/tydz. <br> 🚴 *Rower stacjonarny* 3x/tydz.",
+    30.5: "🚶 *Marsz 45 min* 5x/tydz. <br> 🧘 *Joga krzesłowa* 3x/tydz. <br> 🏋️ *Ćwiczenia z gumami* 2x/tydz. <br> 🚴 *Rower stacjonarny 30 min* 2x/tydz.",
+    31.0: "🚴 *Rower stacjonarny 45 min* 3x/tydz. (60% HRmax) <br> 🧘 *Joga dla osób otyłych* 2x/tydz. <br> 🚶 *Marsz po schodach (1–2 piętra)* 2x/tydz. <br> 🏋️ *Mini obwody* 2x/tydz.",
+    31.5: "🚶 *Marsz 40 min* 5x/tydz. <br> 🧘 *Rozciąganie siedzące* codziennie <br> 🏋️ *Ćwiczenia z ciężarem własnym* 2x/tydz. <br> 🚴 *Rower wodny* 2x/tydz.",
+    32.0: "🏋️ *Ćwiczenia z gumami* 2x/tydz. po 30 min <br> 🚶 *Marsze z kijkami* 4x/tydz. <br> 🚴 *Rower stacjonarny 50 min* 3x/tydz. <br> 🧘 *Stretching wieczorny* codziennie",
+    32.5: "🚶 *Marsz 50 min* 5x/tydz. <br> 🧘 *Joga leżąca* 3x/tydz. <br> 🏋️ *Trening rehabilitacyjny* 2x/tydz. <br> 🚴 *Rower poziomy* 2x/tydz.",
+    33.0: "🚴 *Rower 60 min* 3x/tydz. (stały wysiłek) <br> 🧘 *Stretching + uważność* 3x/tydz. <br> 🚶 *Marsz tempowy 60 min* 4x/tydz. <br> 🏋️ *Bodyweight training* 2x/tydz.",
+    33.5: "🚶 *Marsz 55 min* 5x/tydz. <br> 🧘 *Ćwiczenia oddechowe* codziennie <br> 🏋️ *Trening w wodzie* 2x/tydz. <br> 🚴 *Rower stacjonarny 40 min* 2x/tydz.",
+    34.0: "🚶 *Marsz z plecakiem 60 min* 5x/tydz. <br> 🚴 *Rower pod górkę 45 min* 2x/tydz. <br> 🏋️ *Siłownia: maszyny + gumy* 3x/tydz. <br> 🧘 *Foam roller + oddech* codziennie",
+    34.5: "🚶 *Marsz 2x30 min* codziennie <br> 🧘 *Relaksacja* codziennie <br> 🏋️ *Ćwiczenia z fizjoterapeutą* 2x/tydz. <br> 🚴 *Rower ergometr* 2x/tydz.",
+    35.0: "🚶 *Marsz 2x po 30 min* codziennie <br> 🚴 *Rower stacjonarny 60 min* 3x/tydz. <br> 🧘 *Relaksacja i rozciąganie* codziennie <br> 🏋️ *Mini trening obwodowy* 2x/tydz.",
+    35.5: "🚶 *Spacer 3x20 min* codziennie <br> 🧘 *Joga krzesłowa* codziennie <br> 🏋️ *Ćwiczenia rehabilitacyjne* 2x/tydz. <br> 🚴 *Rower poziomy 30 min* 2x/tydz.",
+    36.0: "🚶 *Nordic walking 60 min* 5x/tydz. <br> 🧘 *Joga leżąca / krzesłowa* codziennie <br> 🚴 *Rower lekki 40 min* 3x/tydz. <br> 🏋️ *Ćwiczenia rehabilitacyjne* 2x/tydz.",
+    36.5: "🚶 *Spacer 3x25 min* codziennie <br> 🧘 *Stretching siedzący* codziennie <br> 🏋️ *Trening pod okiem specjalisty* 2x/tydz. <br> 🚴 *Rower wodny* 1x/tydz.",
+    37.0: "🚶 *Marsze 2x dziennie* po 30–45 min <br> 🚴 *Rower poziomy (ergometr)* 3x/tydz. <br> 🧘 *Stretching leżący* codziennie <br> 🏋️ *Trening w wodzie* 1–2x/tydz.",
+    37.5: "🚶 *Spacer 4x20 min* codziennie <br> 🧘 *Ćwiczenia oddechowe* codziennie <br> 🏋️ *Fizjoterapia* 2x/tydz. <br> 🚴 *Rower stacjonarny 20 min* 2x/tydz.",
+    38.0: "🚶 *Chodzenie po płaskim 60 min* 5x/tydz. <br> 🚴 *Rower wodny lub stacjonarny* 2x/tydz. <br> 🧘 *Ćwiczenia oddechowe i mobilność* <br> 🏋️ *Mini trening z fizjoterapeutą*",
+    38.5: "🚶 *Spacer 3x20 min* codziennie <br> 🧘 *Joga leżąca* codziennie <br> 🏋️ *Ćwiczenia z pomocą* 2x/tydz. <br> 🚴 *Rower poziomy 15 min* 2x/tydz.",
+    39.0: "🚶 *Spacery + krótkie przerwy w ciągu dnia* 6x/tydz. <br> 🧘 *Rozciąganie 15 min rano + wieczorem* <br> 🚴 *Rower stacjonarny z niskim oporem* 2x/tydz.",
+    39.5: "🚶 *Spacer 4x15 min* codziennie <br> 🧘 *Relaksacja oddechowa* codziennie <br> 🏋️ *Fizjoterapia* 2x/tydz. <br> 🚴 *Rower poziomy 10 min* 1x/tydz.",
+    40.0: "🚶 *Marsze z asekuracją 30 min* 5x/tydz. <br> 🧘 *Stretching i ćwiczenia oddechowe* codziennie <br> 🏋️ *Treningi na siedząco / fizjoterapia* 2x/tydz. <br> 🚴 *Rower poziomy* 2x/tydz."
+  };
+
+  // Typy posiłków z godzinami prezentacji
+  const mealTypes = {
+    breakfast: {
+      name: "Śniadanie",
+      startHour: 0,
+      endHour: 11.5
+    },
+    second_breakfast: {
+      name: "II Śniadanie",
+      startHour: 9,
+      endHour: 12
+    },
+    lunch: {
+      name: "Obiad",
+      startHour: 11.51,
+      endHour: 16.5
+    },
+    snack: {
+      name: "Podwieczorek",
+      startHour: 15,
+      endHour: 18
+    },
+    dinner: {
+      name: "Kolacja",
+      startHour: 16.51,
+      endHour: 23.98
+    }
+  };
+
+  // Funkcja do logowania w konsoli
+  function logToConsole(message, type = 'log') {
+    const timestamp = new Date().toLocaleTimeString();
+    const logMessage = `[${timestamp}] ${message}`;
+    
+    switch(type) {
+      case 'error':
+        console.error(logMessage);
+        break;
+      case 'warn':
+        console.warn(logMessage);
+        break;
+      case 'info':
+        console.info(logMessage);
+        break;
+      default:
+        console.log(logMessage);
+    }
+  }
+
+  // Funkcja do wyświetlania błędów walidacji
+  function showError(element, message) {
+    const errorElement = document.createElement('div');
+    errorElement.className = 'error-message';
+    errorElement.textContent = message;
+    
+    const existingError = element.nextElementSibling;
+    if (existingError && existingError.classList.contains('error-message')) {
+      existingError.remove();
+    }
+    
+    element.classList.add('has-error');
+    element.after(errorElement);
+    errorElement.style.display = 'block';
+    
+    logToConsole(`Błąd walidacji: ${message}`, 'error');
+  }
+
+  // Funkcja do usuwania błędów walidacji
+  function clearError(element) {
+    element.classList.remove('has-error');
+    const errorElement = element.nextElementSibling;
+    if (errorElement && errorElement.classList.contains('error-message')) {
+      errorElement.style.display = 'none';
+    }
+  }
+
+  // Inicjalizacja
+  document.addEventListener('DOMContentLoaded', function() {
+    logToConsole('Aplikacja zainicjalizowana', 'info');
+    
+    // Przyciski
+    document.getElementById('addMeasurementBtn').addEventListener('click', function() {
+      logToConsole('Kliknięto przycisk "Dodaj nowy pomiar"', 'info');
+      showMeasurementModal();
+    });
+
+    document.getElementById('addMealBtn').addEventListener('click', function() {
+      logToConsole('Kliknięto przycisk "Dodaj posiłek"', 'info');
+      showMealModal();
+    });
+
+    // Formularze
+    document.getElementById('initialForm').addEventListener('submit', handleInitialFormSubmit);
+    document.getElementById('measurementForm').addEventListener('submit', handleMeasurementFormSubmit);
+    document.getElementById('mealForm').addEventListener('submit', handleMealFormSubmit);
+
+    // Przycisk dodawania składnika
+    document.getElementById('addIngredientBtn').addEventListener('click', function() {
+      logToConsole('Kliknięto przycisk "Dodaj składnik"', 'info');
+      addIngredient();
+    });
+
+    // Autouzupełnianie składników
+    document.getElementById('newIngredientName').addEventListener('input', function(e) {
+      const input = e.target;
+      const val = input.value.toLowerCase();
+      const autocompleteList = document.getElementById('autocompleteList');
+      
+      autocompleteList.innerHTML = '';
+      
+      if (val.length < 2) return;
+      
+      const matches = Object.keys(ingredientDatabase).filter(
+        key => key.toLowerCase().includes(val)
+      ).slice(0, 5);
+      
+      matches.forEach(match => {
+        const item = document.createElement('div');
+        item.innerHTML = `${ingredientDatabase[match].emoji || '🍴'} ${match}`;
+        item.addEventListener('click', function() {
+          input.value = match;
+          autocompleteList.innerHTML = '';
+          
+          const defaultUnit = ingredientDatabase[match].defaultUnit;
+          const unitSelect = document.getElementById('newIngredientUnit');
+          
+          if (defaultUnit === '100g') {
+            unitSelect.value = 'g';
+          } else if (defaultUnit === '100ml') {
+            unitSelect.value = 'ml';
+          } else {
+            unitSelect.value = defaultUnit;
+          }
+          
+          logToConsole(`Wybrano składnik z autouzupełniania: ${match} (jednostka: ${unitSelect.value})`, 'info');
+        });
+        autocompleteList.appendChild(item);
+      });
+    });
+
+    // Wczytaj dane z localStorage
+    loadData();
+  });
+
+  // Pokaz modal posiłków
+  function showMealModal() {
+    logToConsole('Otwieranie modalu posiłków', 'info');
+    const form = document.getElementById('mealForm');
+    form.reset();
+    document.getElementById('ingredientList').innerHTML = '';
+    document.getElementById('mealCaloriesDisplay').textContent = 'Suma kalorii: 0 kcal';
+    document.getElementById('mealModal').style.display = 'flex';
+    
+    document.querySelectorAll('.has-error').forEach(el => el.classList.remove('has-error'));
+    document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+    
+    const now = new Date();
+    const currentHour = now.getHours() + now.getMinutes() / 60;
+    let defaultMealType = '';
+    
+    for (const [type, details] of Object.entries(mealTypes)) {
+      if (currentHour >= details.startHour && currentHour <= details.endHour) {
+        defaultMealType = type;
+        break;
+      }
+    }
+    
+    if (defaultMealType) {
+      document.getElementById('mealType').value = defaultMealType;
+      logToConsole(`Ustawiono domyślny typ posiłku: ${defaultMealType} (aktualna godzina: ${currentHour.toFixed(2)})`, 'info');
+    }
+  }
+
+  // Obsługa formularza początkowego
+  function handleInitialFormSubmit(e) {
+    e.preventDefault();
+    logToConsole('Przetwarzanie formularza początkowego', 'info');
+    
+    const formData = new FormData(e.target);
+    userData.basicInfo = {
+      name: formData.get('name'),
+      age: parseInt(formData.get('age')),
+      height: parseInt(formData.get('height')),
+      targetWeight: parseFloat(formData.get('targetWeight'))
+    };
+    
+    userData.basicInfo.gender = "male";
+    
+    logToConsole('Dane podstawowe zapisane:', 'info');
+    console.dir(userData.basicInfo);
+    
+    showMeasurementModal();
+    document.getElementById('initialModal').style.display = 'none';
+  }
+
+  // Pokaz modal pomiarów
+  function showMeasurementModal() {
+    logToConsole('Otwieranie modalu pomiarów', 'info');
+    const form = document.getElementById('measurementForm');
+    form.reset();
+    
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('measurementDate').value = today;
+    
+    if (userData.measurements.length > 0) {
+      const lastMeasurement = userData.measurements[userData.measurements.length - 1];
+      document.getElementById('currentWeight').value = lastMeasurement.currentWeight || '';
+      document.getElementById('waist').value = lastMeasurement.waist || '';
+      document.getElementById('wrist').value = lastMeasurement.wrist || '';
+      document.getElementById('thigh').value = lastMeasurement.thigh || '';
+      
+      logToConsole('Ustawiono wartości z ostatniego pomiaru jako podpowiedź', 'info');
+    }
+    
+    document.getElementById('measurementModal').style.display = 'flex';
+  }
+
+  // Obsługa formularza pomiarów
+  function handleMeasurementFormSubmit(e) {
+    e.preventDefault();
+    logToConsole('Przetwarzanie formularza pomiarów', 'info');
+    
+    const formData = new FormData(e.target);
+    const measurement = {
+      date: formData.get('measurementDate'),
+      currentWeight: parseFloat(formData.get('currentWeight')),
+      waist: formData.get('waist') ? parseInt(formData.get('waist')) : null,
+      wrist: formData.get('wrist') ? parseInt(formData.get('wrist')) : null,
+      thigh: formData.get('thigh') ? parseInt(formData.get('thigh')) : null,
+      timestamp: new Date(formData.get('measurementDate')).getTime()
+    };
+    
+    logToConsole('Nowy pomiar:', 'info');
+    console.dir(measurement);
+    
+    userData.measurements.unshift(measurement);
+    userData.currentMeasurementIndex = 0;
+    
+    saveData();
+    document.getElementById('measurementModal').style.display = 'none';
+    updateUI();
+  }
+
+  // Dodaj składnik do listy
+  function addIngredient() {
+    const nameInput = document.getElementById('newIngredientName');
+    const amountInput = document.getElementById('newIngredientAmount');
+    const unitSelect = document.getElementById('newIngredientUnit');
+    
+    const name = nameInput.value.trim();
+    const amount = parseFloat(amountInput.value);
+    const unit = unitSelect.value;
+    
+    logToConsole(`Próba dodania składnika: ${name}, ${amount} ${unit}`, 'info');
+    
+    if (!name) {
+      showError(nameInput, 'Proszę podać nazwę składnika');
+      logToConsole('Błąd: Brak nazwy składnika', 'error');
+      return;
+    } else {
+      clearError(nameInput);
+    }
+    
+    if (isNaN(amount)) {
+      showError(amountInput, 'Proszę podać prawidłową ilość');
+      logToConsole('Błąd: Nieprawidłowa ilość składnika', 'error');
+      return;
+    } else if (amount <= 0) {
+      showError(amountInput, 'Ilość musi być większa od zera');
+      logToConsole('Błąd: Ilość składnika musi być > 0', 'error');
+      return;
+    } else {
+      clearError(amountInput);
+    }
+    
+    const validAmount = amount;
+    const ingredientKey = Object.keys(ingredientDatabase).find(
+      key => key.toLowerCase() === name.toLowerCase()
+    ) || name;
+    
+    const ingredientInfo = ingredientDatabase[ingredientKey] || { 
+      kcalPerUnit: 0,
+      defaultUnit: 'g',
+      emoji: '🍴'
+    };
+    
+    let calories = 0;
+    if (unit === 'szt') {
+      calories = ingredientInfo.kcalPerUnit * validAmount;
+    } else if (unit === 'g') {
+      calories = (ingredientInfo.kcalPerUnit / 100) * validAmount;
+    } else if (unit === 'kg') {
+      calories = (ingredientInfo.kcalPerUnit / 100) * (validAmount * 1000);
+    } else if (unit === 'ml') {
+      calories = (ingredientInfo.kcalPerUnit / 100) * validAmount;
+    }
+    
+    logToConsole(`Dodano składnik: ${ingredientKey} (${validAmount} ${unit}) - ${calories.toFixed(0)} kcal`, 'info');
+    
+    const ingredientList = document.getElementById('ingredientList');
+    const ingredientId = Date.now();
+    
+    const ingredientItem = document.createElement('div');
+    ingredientItem.className = 'ingredient-item';
+    ingredientItem.dataset.id = ingredientId;
+    ingredientItem.dataset.calories = calories;
+    ingredientItem.dataset.name = ingredientKey;
+    ingredientItem.dataset.amount = `${validAmount} ${unit}`;
+    ingredientItem.dataset.emoji = ingredientInfo.emoji;
+    ingredientItem.innerHTML = `
+      <span class="ingredient-name">${ingredientInfo.emoji || '🍴'} ${ingredientKey} (${validAmount} ${unit})</span>
+      <span class="ingredient-calories">${calories.toFixed(0)} kcal</span>
+      <button type="button" class="remove-ingredient-btn" onclick="removeIngredient('${ingredientId}')">-</button>
+    `;
+    
+    ingredientList.appendChild(ingredientItem);
+    updateTotalCalories();
+    
+    nameInput.value = '';
+    amountInput.value = '';
+    document.getElementById('autocompleteList').innerHTML = '';
+  }
+
+  // Usuń składnik z listy
+  function removeIngredient(id) {
+    logToConsole(`Usuwanie składnika o ID: ${id}`, 'info');
+    const ingredient = document.querySelector(`.ingredient-item[data-id="${id}"]`);
+    if (ingredient) {
+      const name = ingredient.dataset.name;
+      const amount = ingredient.dataset.amount;
+      const calories = ingredient.dataset.calories;
+      
+      logToConsole(`Usunięto składnik: ${name} (${amount}) - ${calories} kcal`, 'info');
+      
+      ingredient.remove();
+      updateTotalCalories();
+    }
+  }
+
+  // Oblicz całkowitą liczbę kalorii
+  function updateTotalCalories() {
+    const ingredients = document.querySelectorAll('.ingredient-item');
+    let totalCalories = 0;
+    
+    ingredients.forEach(ingredient => {
+      const calories = parseFloat(ingredient.dataset.calories) || 0;
+      totalCalories += calories;
+    });
+    
+    document.getElementById('mealCaloriesDisplay').textContent = 
+      `Suma kalorii: ${totalCalories.toFixed(0)} kcal`;
+    
+    logToConsole(`Zaktualizowano sumę kalorii: ${totalCalories.toFixed(0)} kcal`, 'info');
+  }
+
+  // Obsługa formularza posiłków
+  function handleMealFormSubmit(e) {
+    e.preventDefault();
+    
+    logToConsole('Rozpoczęto dodawanie posiłku', 'info');
+    
+    const formData = new FormData(e.target);
+    const ingredients = [];
+    let totalCalories = 0;
+    
+    const ingredientItems = document.querySelectorAll('.ingredient-item');
+    logToConsole(`Znaleziono ${ingredientItems.length} składników`, 'info');
+    
+    ingredientItems.forEach(item => {
+      const name = item.dataset.name;
+      const amount = item.dataset.amount;
+      const calories = parseFloat(item.dataset.calories) || 0;
+      const emoji = item.dataset.emoji || '🍴';
+      
+      logToConsole(`Przetwarzanie składnika: ${emoji} ${name} (${amount}) - ${calories} kcal`, 'info');
+      
+      ingredients.push({
+        name: name,
+        amount: amount,
+        calories: calories,
+        emoji: emoji
+      });
+      
+      totalCalories += calories;
+    });
+    
+    if (ingredients.length === 0) {
+      showError(document.getElementById('ingredientList'), 'Dodaj przynajmniej jeden składnik');
+      logToConsole('Błąd: Brak składników w posiłku', 'error');
+      return;
+    } else {
+      clearError(document.getElementById('ingredientList'));
+    }
+    
+    const mealName = formData.get('mealName');
+    if (!mealName || mealName.trim() === '') {
+      showError(document.getElementById('mealName'), 'Proszę podać nazwę posiłku');
+      logToConsole('Błąd: Brak nazwy posiłku', 'error');
+      return;
+    } else {
+      clearError(document.getElementById('mealName'));
+    }
+    
+    const mealType = formData.get('mealType');
+    if (!mealType) {
+      showError(document.getElementById('mealType'), 'Proszę wybrać typ posiłku');
+      logToConsole('Błąd: Brak typu posiłku', 'error');
+      return;
+    } else {
+      clearError(document.getElementById('mealType'));
+    }
+    
+    logToConsole(`Suma kalorii: ${totalCalories.toFixed(0)} kcal`, 'info');
+    
+    const meal = {
+      name: mealName.trim(),
+      type: mealType,
+      ingredients: ingredients,
+      totalCalories: totalCalories,
+      date: new Date().toISOString().split('T')[0],
+      timestamp: new Date().getTime()
+    };
+    
+    logToConsole('Utworzono obiekt posiłku:', 'info');
+    console.dir(meal);
+    
+    if (!userData.meals) {
+      userData.meals = [];
+      logToConsole('Inicjalizacja tablicy posiłków', 'info');
+    }
+    
+    userData.meals.unshift(meal);
+    userData.currentMealIndex = 0;
+    userData.currentMealPage = 0;
+    
+    logToConsole('Posiłek dodany pomyślnie', 'info');
+    
+    saveData();
+    document.getElementById('mealModal').style.display = 'none';
+    updateMealList();
+    
+    e.target.reset();
+    document.getElementById('ingredientList').innerHTML = '';
+    document.getElementById('mealCaloriesDisplay').textContent = 'Suma kalorii: 0 kcal';
+  }
+
+  // Załaduj dane z localStorage
+  function loadData() {
+    logToConsole('Próba wczytania danych z localStorage', 'info');
+    const savedData = localStorage.getItem('fitnessAppData');
+    if (savedData) {
+      try {
+        userData = JSON.parse(savedData);
+        
+        if (!userData.meals) userData.meals = [];
+        if (!userData.measurements) userData.measurements = [];
+        if (!userData.basicInfo) userData.basicInfo = {};
+        if (userData.currentMeasurementIndex === undefined) userData.currentMeasurementIndex = 0;
+        if (userData.currentMealIndex === undefined) userData.currentMealIndex = 0;
+        if (userData.currentMealPage === undefined) userData.currentMealPage = 0;
+        
+        logToConsole('Dane wczytane pomyślnie z localStorage', 'info');
+        console.dir(userData);
+        
+        updateUI();
+        updateMealList();
+        updateWeeklyPlan();
+      } catch (e) {
+        logToConsole('Błąd podczas parsowania danych z localStorage: ' + e.message, 'error');
+        document.getElementById('initialModal').style.display = 'flex';
+      }
+    } else {
+      logToConsole('Brak danych w localStorage - pokazuję modal początkowy', 'info');
+      document.getElementById('initialModal').style.display = 'flex';
+    }
+  }
+
+  // Zapisz dane do localStorage
+  function saveData() {
+    logToConsole('Zapisywanie danych do localStorage', 'info');
+    try {
+      localStorage.setItem('fitnessAppData', JSON.stringify(userData));
+      logToConsole('Dane zapisane pomyślnie', 'info');
+    } catch (e) {
+      logToConsole('Błąd podczas zapisywania danych do localStorage: ' + e.message, 'error');
+    }
+  }
+
+  // Aktualizuj interfejs użytkownika
+  function updateUI() {
+    logToConsole('Aktualizacja interfejsu użytkownika', 'info');
+    if (!userData.measurements || userData.measurements.length === 0) {
+      logToConsole('Brak pomiarów do wyświetlenia', 'info');
+      return;
+    }
+    
+    const currentMeasurement = userData.measurements[userData.currentMeasurementIndex];
+    const basicInfo = userData.basicInfo;
+    
+    displayUserData(currentMeasurement, basicInfo);
+    updateSummary(currentMeasurement, basicInfo);
+    updateMeasurementNavigation();
+    updateWeeklyPlan();
+  }
+
+  // Wyświetl dane użytkownika
+  function displayUserData(measurement, basicInfo) {
+    logToConsole('Wyświetlanie danych użytkownika', 'info');
+    const userDataContainer = document.getElementById('userData');
+    userDataContainer.innerHTML = `
+      <div class="user-data-item">
+        <span class="user-data-label">Imię:</span>
+        <span class="user-data-value">${basicInfo.name || 'Nie podano'}</span>
+      </div>
+      <div class="user-data-item">
+        <span class="user-data-label">Wiek:</span>
+        <span class="user-data-value">${basicInfo.age || 'Nie podano'} lat</span>
+      </div>
+      <div class="user-data-item">
+        <span class="user-data-label">Wzrost:</span>
+        <span class="user-data-value">${basicInfo.height || 'Nie podano'} cm</span>
+      </div>
+      <div class="user-data-item">
+        <span class="user-data-label">Data pomiaru:</span>
+        <span class="user-data-value">${measurement.date ? formatDate(measurement.date) : 'Nie podano'}</span>
+      </div>
+      <div class="user-data-item">
+        <span class="user-data-label">Waga aktualna:</span>
+        <span class="user-data-value">${measurement.currentWeight || 'Nie podano'} kg</span>
+      </div>
+      ${measurement.waist ? `
+      <div class="user-data-item">
+        <span class="user-data-label">Obwód pasa:</span>
+        <span class="user-data-value">${measurement.waist} cm</span>
+      </div>
+      ` : ''}
+      ${measurement.wrist ? `
+      <div class="user-data-item">
+        <span class="user-data-label">Obwód nadgarstka:</span>
+        <span class="user-data-value">${measurement.wrist} cm</span>
+      </div>
+      ` : ''}
+      ${measurement.thigh ? `
+      <div class="user-data-item">
+        <span class="user-data-label">Obwód uda:</span>
+        <span class="user-data-value">${measurement.thigh} cm</span>
+      </div>
+      ` : ''}
+    `;
+  }
+
+  // Formatuj datę
+  function formatDate(dateString) {
+    if (!dateString) return 'Nie podano';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pl-PL');
+  }
+
+  // Aktualizuj podsumowanie
+  function updateSummary(measurement, basicInfo) {
+    logToConsole('Aktualizacja podsumowania', 'info');
+    if (!measurement || !basicInfo || !basicInfo.height) {
+      document.getElementById('summaryData').innerHTML = '<p>Brak danych do wyświetlenia</p>';
+      logToConsole('Brak danych do wyświetlenia w podsumowaniu', 'info');
+      return;
+    }
+    
+    const bmi = (measurement.currentWeight / ((basicInfo.height/100) ** 2)).toFixed(1);
+    const bmiCategory = getBmiCategory(bmi);
+    const bmiInfo = bmiClassifications[bmiCategory];
+    const calories = calculateCalories(measurement, basicInfo);
+    
+    let goalText = '';
+    if (measurement.currentWeight > basicInfo.targetWeight + 2) {
+      goalText = `Redukcja wagi - ${basicInfo.targetWeight} kg`; // TU BYŁ BŁĄD - targetWidth zamiast targetWeight
+    } else if (measurement.currentWeight < basicInfo.targetWeight - 2) {
+      goalText = `Budowa masy - ${basicInfo.targetWeight} kg`;
+    } else {
+      goalText = `Utrzymanie wagi - ${basicInfo.targetWeight} kg`;
+    }
+
+    document.getElementById('summaryData').innerHTML = `
+      <div class="summary-item">
+        <span class="summary-label">BMI:</span>
+        <span class="summary-value ${bmiInfo.class}">${bmi} (${bmiInfo.name})</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Cel:</span>
+        <span class="summary-value">${goalText}</span>
+      </div>
+      
+      <div class="summary-item">
+        <span class="summary-label">Cel kaloryczny:</span>
+        <span class="summary-value">${calories.target} kcal/dzień</span>
+      </div>
+       <div class="summary-item">
+        <div class="activity-tooltip">
+          <div class="activity-content ${bmiInfo.class}">
+            ${bmiInfo.activities.map(activity => 
+              `<div class="activity-item">${activity.replace(/^[-•] /, '')}</div>`
+            ).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+
+    
+    logToConsole('Podsumowanie zaktualizowane', 'info');
+}
+
+  // Oblicz zapotrzebowanie kaloryczne
+  function calculateCalories(measurement, basicInfo) {
+    if (!measurement || !basicInfo) {
+      logToConsole('Brak danych do obliczenia zapotrzebowania kalorycznego', 'warn');
+      return {
+        maintenance: 0,
+        target: 0,
+        goal: 'maintain'
+      };
+    }
+    
+    let bmr;
+    if (basicInfo.gender === "male") {
+      bmr = 10 * measurement.currentWeight + 6.25 * basicInfo.height - 5 * basicInfo.age + 5;
+    } else {
+      bmr = 10 * measurement.currentWeight + 6.25 * basicInfo.height - 5 * basicInfo.age - 161;
+    }
+    
+    const activityMultiplier = 1.55;
+    const maintenanceCalories = Math.round(bmr * activityMultiplier);
+    
+    const goal = measurement.currentWeight > basicInfo.targetWeight + 2 ? "loss" : 
+                measurement.currentWeight < basicInfo.targetWeight - 2 ? "gain" : "maintain";
+    
+    let targetCalories;
+    if (goal === "loss") {
+      targetCalories = maintenanceCalories - 500;
+    } else if (goal === "gain") {
+      targetCalories = maintenanceCalories + 500;
+    } else {
+      targetCalories = maintenanceCalories;
+    }
+    
+    logToConsole(`Obliczono zapotrzebowanie: ${maintenanceCalories} kcal/dzień, cel: ${targetCalories} kcal/dzień (${goal})`, 'info');
+    
+    return {
+      maintenance: maintenanceCalories,
+      target: targetCalories,
+      goal: goal
+    };
+  }
+
+  // Określ kategorię BMI
+  function getBmiCategory(bmi) {
+    if (isNaN(bmi)) {
+      logToConsole('Nieprawidłowa wartość BMI', 'warn');
+      return "normal";
+    }
+    if (bmi < 18.5) return "underweight";
+    if (bmi < 25) return "normal";
+    if (bmi < 30) return "overweight";
+    if (bmi < 35) return "obesity1";
+    if (bmi < 40) return "obesity2";
+    return "obesity3";
+  }
+
+  // Aktualizuj nawigację pomiarów
+  function updateMeasurementNavigation() {
+    logToConsole('Aktualizacja nawigacji pomiarów', 'info');
+    const dotsContainer = document.getElementById('measurementDots');
+    dotsContainer.innerHTML = '';
+    
+    if (!userData.measurements || userData.measurements.length <= 1) {
+      logToConsole('Brak wystarczającej liczby pomiarów do wyświetlenia nawigacji', 'info');
+      return;
+    }
+    
+    userData.measurements.forEach((measurement, index) => {
+      const dot = document.createElement('div');
+      dot.className = `dot ${index === userData.currentMeasurementIndex ? 'active' : ''}`;
+      dot.title = formatDate(measurement.date);
+      dot.addEventListener('click', () => {
+        logToConsole(`Kliknięto pomiar z dnia: ${measurement.date}`, 'info');
+        userData.currentMeasurementIndex = index;
+        updateUI();
+      });
+      dotsContainer.appendChild(dot);
+    });
+  }
+
+  // Aktualizuj listę posiłków
+  function updateMealList() {
+    logToConsole('Aktualizacja listy posiłków', 'info');
+    const mealList = document.getElementById('mealList');
+    const mealDots = document.getElementById('mealDots');
+    mealList.innerHTML = '';
+    mealDots.innerHTML = '';
+    
+    if (!userData.meals || userData.meals.length === 0) {
+      mealList.innerHTML = '<p>Brak dodanych posiłków. Dodaj pierwszy posiłek!</p>';
+      logToConsole('Brak posiłków do wyświetlenia', 'info');
+      return;
+    }
+
+    const currentMeal = userData.meals[userData.currentMealPage];
+    
+    logToConsole(`Wyświetlam posiłek: ${currentMeal.name} (strona ${userData.currentMealPage + 1}/${userData.meals.length})`, 'info');
+    
+    const mealItem = document.createElement('div');
+    mealItem.className = 'meal-item';
+    
+    const mealHeader = document.createElement('div');
+    mealHeader.className = 'meal-header';
+    mealHeader.innerHTML = `
+      <span class="meal-name">${currentMeal.name} (${mealTypes[currentMeal.type].name || currentMeal.type})</span>
+      <span class="meal-calories-value">${currentMeal.totalCalories.toFixed(0)} kcal</span>
+    `;
+    mealItem.appendChild(mealHeader);
+    
+    const ingredientsContainer = document.createElement('div');
+    currentMeal.ingredients.forEach(ing => {
+      const ingItem = document.createElement('div');
+      ingItem.className = 'ingredient-item';
+      ingItem.innerHTML = `
+        <span class="ingredient-name">${ing.emoji || '🍴'} ${ing.name} (${ing.amount})</span>
+        <span class="ingredient-calories">${ing.calories.toFixed(0)} kcal</span>
+      `;
+      ingredientsContainer.appendChild(ingItem);
+    });
+    mealItem.appendChild(ingredientsContainer);
+    
+    mealList.appendChild(mealItem);
+
+    if (userData.meals.length > 1) {
+      userData.meals.forEach((meal, index) => {
+        const dot = document.createElement('div');
+        dot.className = `dot ${index === userData.currentMealPage ? 'active' : ''}`;
+        dot.addEventListener('click', () => {
+          logToConsole(`Kliknięto posiłek: ${meal.name} (indeks ${index})`, 'info');
+          userData.currentMealPage = index;
+          updateMealList();
+        });
+        mealDots.appendChild(dot);
+      });
+    }
+  }
+
+  // Aktualizuj plan tygodniowy
+  function updateWeeklyPlan() {
+    logToConsole('Aktualizacja planu tygodniowego', 'info');
+    const weeklyPlanBody = document.getElementById('weeklyPlanBody');
+    weeklyPlanBody.innerHTML = '';
+    
+    if (!userData.measurements || userData.measurements.length === 0) {
+      logToConsole('Brak pomiarów - nie można wygenerować planu tygodniowego', 'info');
+      return;
+    }
+    
+    const currentMeasurement = userData.measurements[userData.currentMeasurementIndex];
+    const basicInfo = userData.basicInfo;
+    
+    if (!currentMeasurement || !basicInfo || !basicInfo.height) {
+      logToConsole('Brak wymaganych danych do wygenerowania planu tygodniowego', 'info');
+      return;
+    }
+    
+    const currentWeight = currentMeasurement.currentWeight;
+    const height = basicInfo.height;
+    const targetWeight = basicInfo.targetWeight;
+    const weightDiff = currentWeight - targetWeight;
+    
+    const weeklyWeightLoss = weightDiff > 0 ? 0.8 : -0.5;
+    
+    for (let i = 1; i <= 4; i++) {
+      const weekDate = new Date();
+      weekDate.setDate(weekDate.getDate() + i * 7);
+      const formattedDate = weekDate.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
+      
+      const projectedWeight = currentWeight - (weeklyWeightLoss * i);
+      const projectedBMI = (projectedWeight / ((height/100) ** 2)).toFixed(1);
+      const waterIntake = (projectedWeight * 0.03).toFixed(1);
+      
+      const bmiRounded = Math.round(projectedBMI * 2) / 2;
+      const activityRecommendations = detailedActivityRecommendations[bmiRounded] || 
+        "Brak szczegółowych zaleceń dla tego zakresu BMI";
+      
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td style="padding: 10px; border-bottom: 1px solid #ddd;">${formattedDate}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #ddd;">${projectedWeight.toFixed(1)}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #ddd;">${projectedBMI}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+          <div style="padding: 5px 0;">${activityRecommendations}</div>
+        </td>
+        <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+          <div class="hydration-info">
+            <strong>${waterIntake} L wody/dzień</strong><br>
+            +0,4–0,6 L za każde 30 min aktywności<br>
+            +0,7–1,0 L za każde 60 min intensywnych aktywności<br><br>
+            💡 <em>Przy aktywności uzupełniaj magnez, wapń, wit. D i elektrolity</em>
+          </div>
+        </td>
+      `;
+      weeklyPlanBody.appendChild(row);
+    }
+    
+    logToConsole('Plan tygodniowy zaktualizowany', 'info');
+  }
+</script>
+</body>
+</html>
